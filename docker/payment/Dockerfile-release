@@ -1,5 +1,11 @@
 FROM alpine:3.4
 
+RUN apk add --update gcc musl-dev linux-headers
+
+COPY rbinder.c rbinder.c
+COPY uthash.h uthash.h
+RUN gcc -o rbinder rbinder.c
+
 ENV	SERVICE_USER=myuser \
 	SERVICE_UID=10001 \
 	SERVICE_GROUP=mygroup \
@@ -10,7 +16,7 @@ RUN	addgroup -g ${SERVICE_GID} ${SERVICE_GROUP} && \
 	apk add --update libcap
 
 WORKDIR /
-EXPOSE 80
+EXPOSE 8080
 COPY app /
 
 RUN	chmod +x /app && \
@@ -19,4 +25,4 @@ RUN	chmod +x /app && \
 
 USER ${SERVICE_USER}
 
-CMD ["/app", "-port=80"]
+CMD ["/rbinder", "/app", "-port=8080"]
