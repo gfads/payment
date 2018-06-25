@@ -7,7 +7,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"golang.org/x/net/context"
 
-	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/weaveworks/common/middleware"
 )
@@ -24,7 +23,7 @@ func init() {
 	prometheus.MustRegister(HTTPLatency)
 }
 
-func WireUp(ctx context.Context, declineAmount float32, tracer stdopentracing.Tracer, serviceName string) (http.Handler, log.Logger) {
+func WireUp(ctx context.Context, declineAmount float32, serviceName string) (http.Handler, log.Logger) {
 	// Log domain.
 	var logger log.Logger
 	{
@@ -41,9 +40,9 @@ func WireUp(ctx context.Context, declineAmount float32, tracer stdopentracing.Tr
 	}
 
 	// Endpoint domain.
-	endpoints := MakeEndpoints(service, tracer)
+	endpoints := MakeEndpoints(service)
 
-	router := MakeHTTPHandler(ctx, endpoints, logger, tracer)
+	router := MakeHTTPHandler(ctx, endpoints, logger)
 
 	httpMiddleware := []middleware.Interface{
 		middleware.Instrument{
